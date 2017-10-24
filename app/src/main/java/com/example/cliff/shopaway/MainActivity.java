@@ -50,6 +50,12 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if (id == R.id.action_sort) {
+            Collections.sort(shoppingList);
+            lv.setAdapter(adapter);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 }
