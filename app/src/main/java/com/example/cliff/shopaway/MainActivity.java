@@ -2,6 +2,8 @@ package com.example.cliff.shopaway;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -11,8 +13,8 @@ import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
     ArrayList<String> shoppingList = null;
-    ArrayAdapter<String> adapter=null;
-    ListView lv =null;
+    ArrayAdapter<String> adapter = null;
+    ListView lv = null;
 
 
     @Override
@@ -30,8 +32,24 @@ public class MainActivity extends AppCompatActivity {
         lv = (ListView) findViewById(R.id.listview);
         lv.setAdapter(adapter);
 
+    }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
