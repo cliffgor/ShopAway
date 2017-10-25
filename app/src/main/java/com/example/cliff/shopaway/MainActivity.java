@@ -88,6 +88,25 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if (id == R.id.action_clear){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Clear Entire List");
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    shoppingList.clear();
+                    lv.setAdapter(adapter);
+                }
+            });
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            builder.show();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
