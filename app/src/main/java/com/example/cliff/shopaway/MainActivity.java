@@ -4,6 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -18,6 +20,8 @@ import android.content.DialogInterface;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.app.Activity;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     ArrayList<String> shoppingList = null;
@@ -30,15 +34,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        shoppingList = new ArrayList<>();
-        Collections.addAll(shoppingList, "eggs", "tommatoes", "apples", "milk");
-        shoppingList.addAll(Arrays.asList("dog food", "chapstiks", "bread", "Napkins"));
-        shoppingList.add("sunscreen");
-        shoppingList.add("toothpaste");
+            shoppingList = getArrayVal(getApplicationContext());
+//        shoppingList = new ArrayList<>();
+//        Collections.addAll(shoppingList, "eggs", "tommatoes", "apples", "milk");
+//        shoppingList.addAll(Arrays.asList("dog food", "chapstiks", "bread", "Napkins"));
+//        shoppingList.add("sunscreen");
+//        shoppingList.add("toothpaste");
+        Collections.sort(shoppingList);
         adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, shoppingList);
         lv = (ListView) findViewById(R.id.listview);
         lv.setAdapter(adapter);
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView parent, View view, final int position, long id) {
+                String selectedItem = ((TextView) view).getText().toString();
+                if (selectedItem.trim().equals(shoppingList.get(position).trim())) {
+                    removeElement(selectedItem, position);
+                } else {
+                    Toast.makeText(getApplicationContext(),"Error Removing Element", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
 
     }
 
@@ -54,15 +70,15 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        if (id == R.id.action_sort) {
-            Collections.sort(shoppingList);
-            lv.setAdapter(adapter);
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        if (id == R.id.action_sort) {
+//            Collections.sort(shoppingList);
+//            lv.setAdapter(adapter);
+//            return true;
+//        }
 
 
         if (id == R.id.action_add) {
@@ -75,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     shoppingList.add(preferredCase(input.getText().toString()));
                     Collections.sort(shoppingList);
+                    storeArrayVal(shoppingList, getApplicationContext());
                     lv.setAdapter(adapter);
                 }
             });
@@ -88,24 +105,25 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
-        if (id == R.id.action_clear){
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Clear Entire List");
-            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    shoppingList.clear();
-                    lv.setAdapter(adapter);
-                }
-            });
-            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            });
-            builder.show();
-        }
+//        if (id == R.id.action_clear){
+//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//            builder.setTitle("Clear Entire List");
+//            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    shoppingList.clear();
+//                    lv.setAdapter(adapter);
+//                }
+//            });
+//            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    dialog.cancel();
+//                }
+//            });
+//            builder.show();
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -117,4 +135,44 @@ public class MainActivity extends AppCompatActivity {
 
         return original.substring(0, 1).toUpperCase() + original.substring(1).toLowerCase();
     }
+
+    public static void storeArrayVal( ArrayList<String> inArrayList, Context context)
+    {
+        Set<String> WhatToWrite = new HashSet<String>(inArrayList);
+        SharedPreferences WordSearchPutPrefs = context.getSharedPreferences("dbArrayValues", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor prefEditor = WordSearchPutPrefs.edit();
+        prefEditor.putStringSet("myArray", WhatToWrite);
+        prefEditor.commit();
+    }
+
+    public static ArrayList getArrayVal( Context dan)
+    {
+        SharedPreferences WordSearchGetPrefs = dan.getSharedPreferences("dbArrayValues",Activity.MODE_PRIVATE);
+        Set<String> tempSet = new HashSet<String>();
+        tempSet = WordSearchGetPrefs.getStringSet("myArray", tempSet);
+        return new ArrayList<String>(tempSet);
+    }
+
+
+    public void removeElement(String selectedItem, final int position){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Remove " + selectedItem + "?");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                shoppingList.remove(position);
+                Collections.sort(shoppingList);
+                storeArrayVal(shoppingList, getApplicationContext());
+                lv.setAdapter(adapter);
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+
 }
